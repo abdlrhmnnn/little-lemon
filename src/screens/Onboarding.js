@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -10,8 +10,10 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { colors, Typoghraphy, filterButtons } from "../helper";
 
-const Onboarding = () => {
+const Onboarding = ({ route }) => {
+  const { isOnboardingComplete } = route.params;
   const [firstName, setFirstName] = useState();
   const [isFirstNameValid, setIsFirstNameValid] = useState(true);
   const [email, setEmail] = useState();
@@ -23,6 +25,12 @@ const Onboarding = () => {
     setFirstName(text);
     setIsFirstNameValid(/^[a-zA-Z]+$/.test(text) && text.length > 0);
   };
+
+  useEffect(() => {
+    if (isOnboardingComplete && isOnboardingComplete === true) {
+      navigation.replace("Home");
+    }
+  }, []);
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -36,9 +44,14 @@ const Onboarding = () => {
         // Save data to AsyncStorage
         try {
           await AsyncStorage.setItem("isOnboardingCompleted", "true");
-          await AsyncStorage.setItem("userName", firstName);
-          await AsyncStorage.setItem("userEmail", email);
-          navigation.navigate("Profile");
+          await AsyncStorage.setItem("firstName", firstName);
+          await AsyncStorage.setItem("email", email);
+          await AsyncStorage.setItem("lastName", "");
+          await AsyncStorage.setItem("phoneNumber", "");
+          await AsyncStorage.setItem("avatarImage", "");
+          navigation.navigate("Home");
+          // setFirstName(undefined);
+          // setEmail(undefined);
         } catch (error) {
           console.error("Error saving data to AsyncStorage:", error);
         }
@@ -56,13 +69,28 @@ const Onboarding = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#CEDEBD" }}>
+    <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
       <View style={styles.header}>
         <Image source={require("../../assets/Logo.png")} />
       </View>
-      <Text style={styles.text}>Let us get to know you</Text>
-      <View style={styles.formContainer}>
-        <Text style={styles.inputTitle}>First Name</Text>
+      <View style={styles.heroContainer}>
+        <Text style={styles.headLine}>Little lemon</Text>
+        <View style={styles.decandImageContainer}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subTitle}>Chicago</Text>
+            <Text style={[styles.decription, { marginRight: 30 }]}>
+              We are a family owned Mediterranean restaurant, focused on
+              traditional recipes served with a modern twist.
+            </Text>
+          </View>
+          <Image
+            source={require("../../assets/HeroImage.png")}
+            style={styles.heroImage}
+          />
+        </View>
+      </View>
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text style={styles.inputTitle}>Name *</Text>
         <TextInput
           style={styles.input}
           value={firstName}
@@ -72,7 +100,7 @@ const Onboarding = () => {
         {!isFirstNameValid && (
           <Text style={styles.errors}>First Name is invalid</Text>
         )}
-        <Text style={styles.inputTitle}>Email</Text>
+        <Text style={[styles.inputTitle, { marginTop: 20 }]}>Email *</Text>
         <TextInput
           style={styles.input}
           value={email}
@@ -81,11 +109,11 @@ const Onboarding = () => {
         ></TextInput>
         {!isEmailValid && <Text style={styles.errors}>Email is invalid</Text>}
       </View>
-      <View style={{ backgroundColor: "#9EB384", paddingVertical: 30 }}>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text>Next</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={[styles.decription, { color: colors.highlightWhite }]}>
+          Next
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -95,8 +123,52 @@ export default Onboarding;
 const styles = StyleSheet.create({
   header: {
     alignItems: "center",
-    backgroundColor: "#FAF1E4",
-    paddingVertical: 15,
+    justifyContent: "space-between",
+    padding: 16,
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: colors.primaryGreen,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarInitials: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.highlightWhite,
+  },
+  heroContainer: {
+    backgroundColor: colors.primaryGreen,
+    padding: 16,
+  },
+  headLine: {
+    ...Typoghraphy.displayTitle,
+    color: colors.primaryYellow,
+  },
+  subTitle: {
+    ...Typoghraphy.subtitle,
+    color: colors.highlightWhite,
+    marginBottom: 10,
+  },
+  decandImageContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+  },
+  decription: {
+    ...Typoghraphy.leadText,
+    color: colors.highlightWhite,
+  },
+  heroImage: {
+    width: 120,
+    height: 140,
+    borderRadius: 10,
   },
   formContainer: {
     flex: 1,
@@ -106,7 +178,7 @@ const styles = StyleSheet.create({
   form: {},
   input: {
     height: 40,
-    borderColor: "black",
+    borderColor: "grey",
     borderWidth: 0.4,
     borderRadius: 10,
     alignItems: "center",
@@ -117,24 +189,25 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   inputTitle: {
-    alignSelf: "center",
+    ...Typoghraphy.leadText,
+    color: "grey",
     marginBottom: 10,
-    marginTop: 15,
+    fontSize: 16,
   },
   button: {
     height: 40,
-    width: 90,
-    borderColor: "black",
-    borderWidth: 1,
+    paddingHorizontal: 50,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "flex-end",
     marginEnd: 20,
-    backgroundColor: "#CEDEBD",
+    backgroundColor: colors.primaryGreen,
+    marginBottom: 30,
   },
   errors: {
     color: "red",
     marginTop: 3,
+    fontSize: 12,
   },
 });

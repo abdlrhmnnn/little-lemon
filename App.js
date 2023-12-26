@@ -8,76 +8,52 @@ import Profile from "./src/screens/Profile";
 import Onboarding from "./src/screens/Onboarding";
 import Home from "./src/screens/Home";
 
-function HomeScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Home Screen</Text>
-    </View>
-  );
-}
-
 const Stack = createNativeStackNavigator();
 
 function App() {
-  const [userData, setUserData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phoneNumber: "1234567890",
-    avatarImage: null,
-    notifications: {
-      email: false,
-      passwordChanges: false,
-      specialOffers: false,
-      newsletter: false,
-    },
-  });
-
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(null);
 
   useEffect(() => {
     checkUserState();
   }, []);
 
+  useEffect(() => {
+    console.log("isOnboardingComplete", isOnboardingComplete);
+  }, [isOnboardingComplete]);
+
   const checkUserState = async () => {
     try {
       const userState = await AsyncStorage.getItem("isOnboardingCompleted");
+      console.log("userState", userState);
       setIsOnboardingComplete(userState === "true" ? true : false);
     } catch (error) {
       console.error(error);
     }
   };
 
+  if (isOnboardingComplete === null) {
+    return <SplashScreen />;
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="Onboarding"
+          component={Onboarding}
+          options={{ headerShown: false }}
+          initialParams={{ isOnboardingComplete: isOnboardingComplete }}
+        />
         <Stack.Screen
           name="Home"
           component={Home}
           options={{ headerShown: false }}
         />
-        {/* {isOnboardingComplete === null ? (
-          <Stack.Screen
-            name="SplashScreen"
-            component={SplashScreen}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <>
-            {isOnboardingComplete ? (
-              <>
-                <Stack.Screen name="Home" component={Home} />
-                <Stack.Screen name="Profile" component={Profile} />
-              </>
-            ) : (
-              <Stack.Screen
-                name="Onboarding"
-                component={Onboarding}
-                options={{ headerShown: false }}
-              />
-            )}
-          </>
-        )} */}
+        <Stack.Screen
+          name="Profile"
+          component={Profile}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

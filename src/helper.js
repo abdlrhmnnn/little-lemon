@@ -19,7 +19,7 @@ export const Typoghraphy = {
     fontWeight: "700",
   },
   leadText: {
-    fontSize: 18,
+    fontSize: 16,
     // fontFamily: "Karla",
     fontWeight: "500",
   },

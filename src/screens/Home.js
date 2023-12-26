@@ -20,25 +20,21 @@ import {
 import { getSectionListData, useUpdateEffect } from "./../utils";
 import * as Crypto from "expo-crypto";
 import debounce from "lodash.debounce";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = () => {
   const [userData, setUserData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phoneNumber: "1234567890",
-    avatarImage: null,
-    notifications: {
-      email: false,
-      passwordChanges: false,
-      specialOffers: false,
-      newsletter: false,
-    },
+    firstName: "",
+    lastName: "",
+    avatarImage: "",
   });
   const [searchBarText, setSearchBarText] = useState("");
   const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
   const [clickedButtons, setClickedButtons] = useState([]);
+
+  const navigation = useNavigation();
 
   const API_URL =
     "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json";
@@ -65,6 +61,11 @@ const Home = () => {
   useEffect(() => {
     (async () => {
       try {
+        const firstName = await AsyncStorage.getItem("firstName");
+        const lastName = await AsyncStorage.getItem("lastName");
+        const avatarImage = await AsyncStorage.getItem("avatarImage");
+        console.log("lastName", lastName);
+        setUserData({ firstName, lastName, avatarImage });
         await fetchData();
         await createTable();
         let menuItems = await getMenuItems();
@@ -146,10 +147,6 @@ const Home = () => {
     ));
   };
 
-  //   useEffect(() => {
-  //     console.log("**clickedButtons**", clickedButtons);
-  //   }, [clickedButtons]);
-
   const menuItem = (item) => {
     return (
       <TouchableOpacity style={styles.itemContainer}>
@@ -180,18 +177,25 @@ const Home = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.header}>
         <Image source={require("../../assets/Logo.png")} />
-        {userData.avatarImage ? (
-          <Image
-            source={{ uri: userData.avatarImage }}
-            style={styles.avatarImage}
-          />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Text style={styles.avatarInitials}>
-              {userData.firstName[0]} {userData.lastName[0]}
-            </Text>
-          </View>
-        )}
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Profile");
+          }}
+        >
+          {userData.avatarImage ? (
+            <Image
+              source={{ uri: userData.avatarImage }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarInitials}>
+                {userData?.firstName ? userData.firstName[0] : ""}
+                {userData?.lastName ? userData.lastName[0] : ""}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
       <View style={styles.heroContainer}>
         <Text style={styles.headLine}>Little lemon</Text>

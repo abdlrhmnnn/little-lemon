@@ -10,11 +10,11 @@ export async function createTable() {
           "create table if not exists menuitems (id text primary key not null, name text, price text, description text, image text, category text);",
           [],
           (_, result) => {
-            console.log("Table creation result:", result);
+            // console.log("Table creation result:", result);
             resolve(result);
           },
           (_, error) => {
-            console.error("Table creation error:", error);
+            // console.error("Table creation error:", error);
             reject(error);
           }
         );
@@ -31,7 +31,7 @@ export async function getMenuItems() {
       (tx) => {
         tx.executeSql("select * from menuitems", [], (_, { rows }) => {
           const menuItems = rows._array;
-          console.log("Menu items from the database:", menuItems);
+          // console.log("Menu items from the database:", menuItems);
           resolve(menuItems);
         });
       },
@@ -57,23 +57,23 @@ export function saveMenuItems(menuItems) {
           )
           .join(", ")};`;
 
-        console.log("Generated SQL statement:", sqlStatement);
+        // console.log("Generated SQL statement:", sqlStatement);
 
         // Execute the SQL statement
         tx.executeSql(
           sqlStatement,
           [],
           (_, result) => {
-            console.log("Save menu items result:", result);
+            // console.log("Save menu items result:", result);
           },
           (_, error) => {
-            console.error("Save menu items error:", error);
+            // console.error("Save menu items error:", error);
           }
         );
       }
     },
     (error) => {
-      console.error("Transaction error:", error);
+      // console.error("Transaction error:", error);
     },
     null
   );
@@ -95,7 +95,7 @@ export async function filterByQueryAndCategories(query, activeCategories) {
         if (query && query.trim() !== "") {
           const queryString = query.trim();
           const titleCondition = `name LIKE '%${queryString}%'`;
-          console.log("Query String Condition:", titleCondition);
+          // console.log("Query String Condition:", titleCondition);
           sqlQuery += ` ${titleCondition}`;
         }
 
@@ -103,14 +103,14 @@ export async function filterByQueryAndCategories(query, activeCategories) {
           const categoryCondition = activeCategories
             .map((category) => `LOWER(category) = LOWER('${category}')`)
             .join(" OR ");
-          console.log("Category Condition:", categoryCondition);
+          // console.log("Category Condition:", categoryCondition);
           sqlQuery +=
             query && query.trim() !== ""
               ? ` AND (${categoryCondition})`
               : ` ${categoryCondition}`;
         }
 
-        console.log("Final SQL Query:", sqlQuery);
+        // console.log("Final SQL Query:", sqlQuery);
 
         tx.executeSql(sqlQuery, [], (_, { rows }) => {
           console.log("Filtered Rows:", rows._array);

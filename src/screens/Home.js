@@ -17,7 +17,7 @@ import {
   saveMenuItems,
   filterByQueryAndCategories,
 } from "./../database";
-import { getSectionListData, useUpdateEffect } from "./../utils";
+import { useUpdateEffect } from "./../utils";
 import * as Crypto from "expo-crypto";
 import debounce from "lodash.debounce";
 import { useNavigation } from "@react-navigation/native";
